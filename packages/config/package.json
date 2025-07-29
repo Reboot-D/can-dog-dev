@@ -1,0 +1,21 @@
+{
+  "name": "@petcare-ai/config",
+  "version": "1.0.0",
+  "private": true,
+  "main": "index.js",
+  "types": "index.d.ts",
+  "files": [
+    "dist"
+  ],
+  "scripts": {
+    "build": "tsc",
+    "clean": "rm -rf dist"
+  },
+  "dependencies": {
+    "@petcare-ai/shared-types": "workspace:*"
+  },
+  "devDependencies": {
+    "typescript": "~5.4.0",
+    "@types/node": "^20"
+  }
+}

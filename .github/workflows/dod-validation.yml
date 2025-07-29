@@ -1,0 +1,104 @@
+name: Definition of Done Validation
+
+on:
+  pull_request:
+    paths:
+      - 'docs/stories/**/*.md'
+  workflow_dispatch:
+    inputs:
+      story_path:
+        description: 'Path to story file to validate'
+        required: true
+        type: string
+
+jobs:
+  validate-dod:
+    runs-on: ubuntu-latest
+    name: Validate Story Definition of Done
+    
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: '18'
+          cache: 'npm'
+
+      - name: Setup pnpm
+        uses: pnpm/action-setup@v2
+        with:
+          version: 9.15.0
+
+      - name: Install dependencies
+        run: pnpm install --frozen-lockfile
+
+      - name: Find modified story files
+        id: find-stories
+        if: github.event_name == 'pull_request'
+        run: |
+          # Get list of modified story files
+          MODIFIED_FILES=$(git diff --name-only ${{ github.event.pull_request.base.sha }} ${{ github.sha }} | grep 'docs/stories/.*\.md$' || echo "")
+          echo "modified_files=$MODIFIED_FILES" >> $GITHUB_OUTPUT
+          echo "Modified story files: $MODIFIED_FILES"
+
+      - name: Validate modified stories
+        if: github.event_name == 'pull_request' && steps.find-stories.outputs.modified_files != ''
+        run: |
+          echo "Validating modified story files..."
+          EXIT_CODE=0
+          
+          for file in ${{ steps.find-stories.outputs.modified_files }}; do
+            echo "🔍 Validating: $file"
+            if pnpm dod-check "$file"; then
+              echo "✅ $file passed DoD validation"
+            else
+              echo "❌ $file failed DoD validation"
+              EXIT_CODE=1
+            fi
+            echo "---"
+          done
+          
+          exit $EXIT_CODE
+
+      - name: Validate specific story
+        if: github.event_name == 'workflow_dispatch'
+        run: |
+          echo "🔍 Validating specific story: ${{ github.event.inputs.story_path }}"
+          pnpm dod-check "${{ github.event.inputs.story_path }}"
+
+      - name: Comment on PR
+        if: failure() && github.event_name == 'pull_request'
+        uses: actions/github-script@v7
+        with:
+          script: |
+            github.rest.issues.createComment({
+              issue_number: context.issue.number,
+              owner: context.repo.owner,
+              repo: context.repo.repo,
+              body: `❌ **Definition of Done Validation Failed**
+              
+              One or more story files do not meet the Definition of Done criteria. Please review the validation results above and ensure all checklist items are completed before merging.
+              
+              To run the validation locally:
+              \`\`\`bash
+              pnpm dod-check docs/stories/your-story-file.md
+              \`\`\`
+              
+              See the [Story DoD Checklist](docs/story-dod-checklist.md) for complete requirements.`
+            })
+
+      - name: Success comment on PR
+        if: success() && github.event_name == 'pull_request'
+        uses: actions/github-script@v7
+        with:
+          script: |
+            github.rest.issues.createComment({
+              issue_number: context.issue.number,
+              owner: context.repo.owner,
+              repo: context.repo.repo,
+              body: `✅ **Definition of Done Validation Passed**
+              
+              All modified story files meet the Definition of Done criteria and are ready for merge! 🎉`
+            })

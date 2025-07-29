@@ -1,0 +1,25 @@
+{
+  "name": "@petcare-ai/services",
+  "version": "1.0.0",
+  "private": true,
+  "main": "dist/index.js",
+  "types": "dist/index.d.ts",
+  "files": [
+    "dist"
+  ],
+  "scripts": {
+    "build": "tsc",
+    "clean": "rm -rf dist"
+  },
+  "dependencies": {
+    "@google/generative-ai": "^0.24.1",
+    "@petcare-ai/config": "workspace:*",
+    "@petcare-ai/shared-types": "workspace:*",
+    "@supabase/supabase-js": "^2.52.1",
+    "resend": "^4.7.0"
+  },
+  "devDependencies": {
+    "@types/node": "^20",
+    "typescript": "~5.4.0"
+  }
+}
