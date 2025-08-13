@@ -4,10 +4,10 @@
   "outputDirectory": "apps/web/.next",
   "installCommand": "pnpm install",
   "functions": {
-    "apps/web/src/app/api/cron/daily-event-generation/route.ts": {
+    "api/cron/daily-event-generation": {
       "maxDuration": 60
     },
-    "apps/web/src/app/api/cron/check-notifications/route.ts": {
+    "api/cron/check-notifications": {
       "maxDuration": 60
     }
   },
