@@ -5,10 +5,10 @@
   "framework": "nextjs",
   "ignoreCommand": "git diff HEAD^ HEAD --quiet . ./apps/web",
   "functions": {
-    "apps/web/src/app/api/cron/daily-event-generation/route.ts": {
+    "src/app/api/cron/daily-event-generation/route.ts": {
       "maxDuration": 60
     },
-    "apps/web/src/app/api/cron/check-notifications/route.ts": {
+    "src/app/api/cron/check-notifications/route.ts": {
       "maxDuration": 60
     }
   },

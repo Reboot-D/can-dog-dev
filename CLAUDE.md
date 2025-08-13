@@ -121,7 +121,14 @@ Run migrations in order from `/apps/web/database/`:
 - **Environment**: Set all env vars in Vercel dashboard
 - **Cron Jobs**: Configure in Vercel cron settings
 
-## Recent Updates (2025-07-30)
-- Fixed signup form color scheme to use green primary color
-- Fixed purple focus borders using proper Shadcn/ui components
+## Recent Updates (2025-01-13)
+- Fixed Vercel functions path patterns for API routes
+- Fixed Vercel deployment configuration for monorepo  
+- Clean up repository and prepare for GitHub upload
 - Enhanced UX with better design system and components
+
+# important-instruction-reminders
+Do what has been asked; nothing more, nothing less.
+NEVER create files unless they're absolutely necessary for achieving your goal.
+ALWAYS prefer editing an existing file to creating a new one.
+NEVER proactively create documentation files (*.md) or README files. Only create documentation files if explicitly requested by the User.
