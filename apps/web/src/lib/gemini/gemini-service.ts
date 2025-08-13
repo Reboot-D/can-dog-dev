@@ -24,10 +24,17 @@ const GEMINI_RATE_LIMIT = 60 // requests per hour
 const GEMINI_RATE_LIMIT_WINDOW = 60 * 60 * 1000 // 1 hour in milliseconds
 
 export class GeminiService {
-  private genAI: GoogleGenerativeAI
-  private model: ReturnType<GoogleGenerativeAI['getGenerativeModel']>
+  private genAI: GoogleGenerativeAI | null = null
+  private model: ReturnType<GoogleGenerativeAI['getGenerativeModel']> | null = null
+  private initialized = false
 
   constructor() {
+    // 延迟初始化 - 在实际使用时才初始化
+  }
+
+  private ensureInitialized(): void {
+    if (this.initialized) return
+
     const apiKey = process.env.GEMINI_API_KEY
     if (!apiKey) {
       throw new Error('GEMINI_API_KEY environment variable is not set')
@@ -35,6 +42,7 @@ export class GeminiService {
     
     this.genAI = new GoogleGenerativeAI(apiKey)
     this.model = this.genAI.getGenerativeModel({ model: 'gemini-pro' })
+    this.initialized = true
   }
 
   private createSystemPrompt(petName: string, petBreed?: string): string {
@@ -55,6 +63,9 @@ export class GeminiService {
 
   async analyzeJournalEntry(request: GeminiAnalysisRequest): Promise<GeminiAnalysisResponse> {
     try {
+      // 确保服务已初始化
+      this.ensureInitialized()
+      
       // Check rate limit
       const rateLimitResult = rateLimit(GEMINI_RATE_LIMIT_KEY, {
         windowMs: GEMINI_RATE_LIMIT_WINDOW,
@@ -100,6 +111,10 @@ export class GeminiService {
       const fullPrompt = `${systemPrompt}\n\n${userPrompt}`
 
       // Call Gemini API
+      if (!this.model) {
+        throw new Error('Gemini model not initialized')
+      }
+      
       const result = await this.model.generateContent(fullPrompt)
       const response = await result.response
       const analysis = response.text()

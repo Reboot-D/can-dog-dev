@@ -30,6 +30,8 @@
   "globalPassThroughEnv": [
     "NEXT_PUBLIC_*",
     "SUPABASE_*",
-    "RESEND_*"
+    "RESEND_*",
+    "GEMINI_API_KEY",
+    "CRON_SECRET"
   ]
 }
