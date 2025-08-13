@@ -25,9 +25,28 @@ export default function ResetPasswordPage() {
       try {
         const supabase = createClient()
         
-        // Check if there's a hash fragment with auth tokens
+        // Check for different password reset flows
         const hash = window.location.hash
-        if (hash && hash.includes('access_token')) {
+        const urlParams = new URLSearchParams(window.location.search)
+        const code = urlParams.get('code')
+        
+        // Handle PKCE flow (modern Supabase auth)
+        if (code) {
+          try {
+            const { error } = await supabase.auth.exchangeCodeForSession(code)
+            if (error) {
+              setError('密码重置链接无效或已过期，请重新申请密码重置。')
+            } else {
+              setVerified(true)
+              // Clean the URL parameters for better UX
+              window.history.replaceState({}, document.title, window.location.pathname)
+            }
+          } catch {
+            setError('验证密码重置会话时出现错误，请重新申请密码重置。')
+          }
+        }
+        // Handle hash-based flow (legacy)
+        else if (hash && hash.includes('access_token')) {
           // This means we have auth tokens in the URL fragment
           // The session should be automatically established by Supabase
           const { data: { user }, error } = await supabase.auth.getUser()
@@ -40,7 +59,7 @@ export default function ResetPasswordPage() {
             window.history.replaceState({}, document.title, window.location.pathname)
           }
         } else {
-          // No hash fragment, check for existing session
+          // No code or hash, check for existing session
           const { data: { user }, error } = await supabase.auth.getUser()
           
           if (error || !user) {
