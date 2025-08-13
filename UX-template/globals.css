@@ -68,7 +68,7 @@
 
 @layer base {
   * {
-    @apply border-border;
+    @apply border-border/20;
   }
   body {
     background-color: #f9fafb; /* 米白色背景 */

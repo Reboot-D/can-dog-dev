@@ -1,14 +1,14 @@
 {
   "buildCommand": "cd apps/web && pnpm build",
-  "devCommand": "pnpm dev",
+  "devCommand": "cd apps/web && pnpm dev",
   "installCommand": "pnpm install",
   "framework": "nextjs",
   "outputDirectory": "apps/web/.next",
   "functions": {
-    "apps/web/src/app/api/cron/daily-event-generation/route.ts": {
+    "app/api/cron/daily-event-generation/route.ts": {
       "maxDuration": 60
     },
-    "apps/web/src/app/api/cron/check-notifications/route.ts": {
+    "app/api/cron/check-notifications/route.ts": {
       "maxDuration": 60
     }
   },
@@ -19,13 +19,7 @@
     },
     {
       "path": "/api/cron/check-notifications", 
-      "schedule": "0 8,12,16,20 * * *"
-    }
-  ],
-  "rewrites": [
-    {
-      "source": "/(.*)",
-      "destination": "/apps/web/$1"
+      "schedule": "0 12 * * *"
     }
   ]
 }
