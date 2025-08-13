@@ -25,6 +25,9 @@ export default function AuthCallbackPage() {
         
         // Handle password reset flow (usually comes with hash fragments)
         if (urlHash.includes('type=recovery') || type === 'recovery') {
+          // Get the next redirect URL
+          const nextUrl = urlParams.get('next') || '/zh-CN/auth/reset-password'
+          
           // For password reset, try to exchange the session from hash or code
           if (urlHash && urlHash.includes('access_token')) {
             // Hash-based flow (legacy)
@@ -32,7 +35,7 @@ export default function AuthCallbackPage() {
             if (error) {
               setError('密码重置链接无效或已过期，请重新申请密码重置。')
             } else {
-              router.push('/auth/reset-password')
+              router.push(nextUrl)
             }
           } else if (code) {
             // PKCE flow
@@ -40,7 +43,7 @@ export default function AuthCallbackPage() {
             if (error) {
               setError('密码重置链接无效或已过期，请重新申请密码重置。')
             } else {
-              router.push('/auth/reset-password')
+              router.push(nextUrl)
             }
           } else {
             setError('无效的密码重置链接，请重新申请密码重置。')

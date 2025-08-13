@@ -103,7 +103,7 @@ export default function ResetPasswordPage() {
         setError(error.message)
       } else {
         // Password updated successfully, redirect to login
-        router.push('/auth/login?message=password-updated')
+        router.push('/zh-CN/auth/login?message=password-updated')
       }
     } catch {
       setError('更新密码时出现错误，请稍后重试。')
