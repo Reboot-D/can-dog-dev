@@ -21,24 +21,43 @@ export default function ResetPasswordPage() {
   const [verified, setVerified] = useState(false)
 
   useEffect(() => {
-    const verifySession = async () => {
+    const handlePasswordResetSession = async () => {
       try {
         const supabase = createClient()
-        const { data: { user }, error } = await supabase.auth.getUser()
         
-        if (error || !user) {
-          setError('无效的密码重置会话，请重新申请密码重置。')
+        // Check if there's a hash fragment with auth tokens
+        const hash = window.location.hash
+        if (hash && hash.includes('access_token')) {
+          // This means we have auth tokens in the URL fragment
+          // The session should be automatically established by Supabase
+          const { data: { user }, error } = await supabase.auth.getUser()
+          
+          if (error || !user) {
+            setError('密码重置链接无效或已过期，请重新申请密码重置。')
+          } else {
+            setVerified(true)
+            // Clean the URL hash for better UX
+            window.history.replaceState({}, document.title, window.location.pathname)
+          }
         } else {
-          setVerified(true)
+          // No hash fragment, check for existing session
+          const { data: { user }, error } = await supabase.auth.getUser()
+          
+          if (error || !user) {
+            setError('无效的密码重置会话，请重新申请密码重置。')
+          } else {
+            setVerified(true)
+          }
         }
-      } catch {
+      } catch (err) {
+        console.error('Password reset session error:', err)
         setError('验证会话时出现错误。')
       } finally {
         setVerifying(false)
       }
     }
 
-    verifySession()
+    handlePasswordResetSession()
   }, [])
 
   const handleSubmit = async (e: React.FormEvent) => {

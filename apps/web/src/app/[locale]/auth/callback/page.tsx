@@ -17,36 +17,52 @@ export default function AuthCallbackPage() {
       try {
         const supabase = createClient()
         
-        // Get the code from URL parameters
-        const code = searchParams.get('code')
+        // Check for different types of auth flows
+        const urlHash = window.location.hash
+        const urlParams = new URLSearchParams(window.location.search)
+        const code = urlParams.get('code')
+        const type = urlParams.get('type')
         
-        if (code) {
+        // Handle password reset flow (usually comes with hash fragments)
+        if (urlHash.includes('type=recovery') || type === 'recovery') {
+          // For password reset, try to exchange the session from hash or code
+          if (urlHash && urlHash.includes('access_token')) {
+            // Hash-based flow (legacy)
+            const { error } = await supabase.auth.getSession()
+            if (error) {
+              setError('密码重置链接无效或已过期，请重新申请密码重置。')
+            } else {
+              router.push('/auth/reset-password')
+            }
+          } else if (code) {
+            // PKCE flow
+            const { error } = await supabase.auth.exchangeCodeForSession(code)
+            if (error) {
+              setError('密码重置链接无效或已过期，请重新申请密码重置。')
+            } else {
+              router.push('/auth/reset-password')
+            }
+          } else {
+            setError('无效的密码重置链接，请重新申请密码重置。')
+          }
+        } 
+        // Handle email verification flow
+        else if (code) {
           const { error } = await supabase.auth.exchangeCodeForSession(code)
           
           if (error) {
             setError(error.message)
           } else {
-            // Check if this is a password reset callback
-            const type = searchParams.get('type')
-            
-            if (type === 'recovery') {
-              // Password reset flow - redirect to reset password page
-              router.push('/auth/reset-password')
-            } else {
-              // Check if there's a hash fragment in the URL (Supabase sends tokens via hash)
-              const hash = window.location.hash
-              if (hash && hash.includes('type=recovery')) {
-                router.push('/auth/reset-password')
-              } else {
-                // Email verification successful, redirect to dashboard
-                router.push('/dashboard')
-              }
-            }
+            // Email verification successful, redirect to dashboard
+            router.push('/dashboard')
           }
-        } else {
+        } 
+        // No valid auth data
+        else {
           setError(t('auth.emailVerificationFailed'))
         }
-      } catch {
+      } catch (err) {
+        console.error('Auth callback error:', err)
         setError(t('common.error'))
       } finally {
         setLoading(false)
