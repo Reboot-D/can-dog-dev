@@ -24,16 +24,24 @@ export default function ForgotPasswordPage() {
 
     try {
       const supabase = createClient()
+      
+      // Set a flag to help callback page identify this as password reset flow
+      sessionStorage.setItem('password-reset-flow', 'true')
+      
       const { error } = await supabase.auth.resetPasswordForEmail(email, {
-        redirectTo: `${window.location.origin}/zh-CN/auth/reset-password`,
+        redirectTo: `${window.location.origin}/zh-CN/auth/callback?next=password-reset`,
       })
 
       if (error) {
+        // Clear the flag if there's an error
+        sessionStorage.removeItem('password-reset-flow')
         setError(error.message)
       } else {
         setMessage('密码重置链接已发送到您的邮箱，请检查您的邮件。')
       }
     } catch {
+      // Clear the flag if there's an error
+      sessionStorage.removeItem('password-reset-flow')
       setError('发送重置邮件时出现错误，请稍后重试。')
     } finally {
       setLoading(false)

@@ -53,8 +53,23 @@ export default function AuthCallbackPage() {
           if (error) {
             setError(error.message)
           } else {
-            // Email verification successful, redirect to dashboard
-            router.push('/dashboard')
+            // Check if this might be a password reset flow by examining the session
+            // Password reset sessions typically have specific metadata or context
+            
+            // If we have a user session after code exchange, check for password reset indicators
+            // This is a more robust way to detect password reset vs email verification
+            const isPasswordReset = urlParams.get('next') === 'password-reset' || 
+                                   urlHash.includes('next=password-reset') ||
+                                   sessionStorage.getItem('password-reset-flow') === 'true'
+            
+            if (isPasswordReset) {
+              // Clean up the session storage flag
+              sessionStorage.removeItem('password-reset-flow')
+              router.push('/auth/reset-password')
+            } else {
+              // Email verification successful, redirect to dashboard
+              router.push('/dashboard')
+            }
           }
         } 
         // No valid auth data
