@@ -26,7 +26,14 @@ export default function LoginPage() {
       })
 
       if (error) {
-        setError(error.message)
+        // Handle specific error messages
+        if (error.message.includes('Email not confirmed')) {
+          setError(t('auth.emailNotConfirmed'))
+        } else if (error.message.includes('Invalid login credentials')) {
+          setError(t('auth.invalidCredentials'))
+        } else {
+          setError(error.message)
+        }
       } else {
         router.push('/dashboard')
       }
