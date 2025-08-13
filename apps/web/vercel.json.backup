@@ -1,0 +1,20 @@
+{
+  "functions": {
+    "app/api/cron/daily-event-generation/route.ts": {
+      "maxDuration": 60
+    },
+    "app/api/cron/check-notifications/route.ts": {
+      "maxDuration": 60
+    }
+  },
+  "crons": [
+    {
+      "path": "/api/cron/daily-event-generation",
+      "schedule": "0 2 * * *"
+    },
+    {
+      "path": "/api/cron/check-notifications", 
+      "schedule": "0 12 * * *"
+    }
+  ]
+}

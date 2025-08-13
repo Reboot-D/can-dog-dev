@@ -1,0 +1,23 @@
+{
+  "buildCommand": "cd ../.. && pnpm build --filter=web",
+  "outputDirectory": ".next",
+  "installCommand": "cd ../.. && pnpm install --frozen-lockfile",
+  "functions": {
+    "src/app/api/cron/daily-event-generation/route.ts": {
+      "maxDuration": 60
+    },
+    "src/app/api/cron/check-notifications/route.ts": {
+      "maxDuration": 60
+    }
+  },
+  "crons": [
+    {
+      "path": "/api/cron/daily-event-generation",
+      "schedule": "0 2 * * *"
+    },
+    {
+      "path": "/api/cron/check-notifications", 
+      "schedule": "0 12 * * *"
+    }
+  ]
+}
