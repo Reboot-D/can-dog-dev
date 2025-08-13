@@ -26,8 +26,20 @@ export default function AuthCallbackPage() {
           if (error) {
             setError(error.message)
           } else {
-            // Email verification successful, redirect to dashboard
-            router.push('/dashboard')
+            // Check if this is a password reset callback
+            const type = searchParams.get('type')
+            const next = searchParams.get('next')
+            
+            if (type === 'recovery' && next) {
+              // Password reset flow - redirect to the reset password page
+              router.push(next)
+            } else if (type === 'recovery') {
+              // Fallback for password reset without next parameter
+              router.push('/auth/reset-password')
+            } else {
+              // Email verification successful, redirect to dashboard
+              router.push('/dashboard')
+            }
           }
         } else {
           setError(t('auth.emailVerificationFailed'))

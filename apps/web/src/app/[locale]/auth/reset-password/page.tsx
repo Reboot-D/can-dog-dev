@@ -1,7 +1,7 @@
 'use client'
 
 import { useState, useEffect } from 'react'
-import { useRouter, useSearchParams } from 'next/navigation'
+import { useRouter } from 'next/navigation'
 import { createClient } from '@/lib/supabase/client'
 import { Button } from '@/components/ui/button'
 import { Input } from '@/components/ui/input'
@@ -11,7 +11,6 @@ import Link from 'next/link'
 
 export default function ResetPasswordPage() {
   const router = useRouter()
-  const searchParams = useSearchParams()
   const [password, setPassword] = useState('')
   const [confirmPassword, setConfirmPassword] = useState('')
   const [loading, setLoading] = useState(false)
@@ -22,44 +21,25 @@ export default function ResetPasswordPage() {
   const [verified, setVerified] = useState(false)
 
   useEffect(() => {
-    const handleAuthCallback = async () => {
+    const verifySession = async () => {
       try {
         const supabase = createClient()
+        const { data: { user }, error } = await supabase.auth.getUser()
         
-        // Get the code from URL parameters
-        const code = searchParams.get('code')
-        
-        if (code) {
-          const { error } = await supabase.auth.exchangeCodeForSession(code)
-          
-          if (error) {
-            setError('密码重置链接无效或已过期，请重新申请密码重置。')
-          } else {
-            setVerified(true)
-          }
+        if (error || !user) {
+          setError('无效的密码重置会话，请重新申请密码重置。')
         } else {
-          // Check if there's an error in the URL (like from the original redirect)
-          const urlError = searchParams.get('error')
-          const errorCode = searchParams.get('error_code')
-          const errorDescription = searchParams.get('error_description')
-          
-          if (urlError === 'access_denied' && errorCode === 'otp_expired') {
-            setError('密码重置链接已过期，请重新申请密码重置。')
-          } else if (errorDescription) {
-            setError('密码重置链接无效，请重新申请密码重置。')
-          } else {
-            setError('无效的密码重置链接，请重新申请密码重置。')
-          }
+          setVerified(true)
         }
       } catch {
-        setError('验证密码重置链接时出现错误。')
+        setError('验证会话时出现错误。')
       } finally {
         setVerifying(false)
       }
     }
 
-    handleAuthCallback()
-  }, [searchParams])
+    verifySession()
+  }, [])
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault()
