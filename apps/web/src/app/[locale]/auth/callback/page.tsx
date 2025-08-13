@@ -28,17 +28,19 @@ export default function AuthCallbackPage() {
           } else {
             // Check if this is a password reset callback
             const type = searchParams.get('type')
-            const next = searchParams.get('next')
             
-            if (type === 'recovery' && next) {
-              // Password reset flow - redirect to the reset password page
-              router.push(next)
-            } else if (type === 'recovery') {
-              // Fallback for password reset without next parameter
+            if (type === 'recovery') {
+              // Password reset flow - redirect to reset password page
               router.push('/auth/reset-password')
             } else {
-              // Email verification successful, redirect to dashboard
-              router.push('/dashboard')
+              // Check if there's a hash fragment in the URL (Supabase sends tokens via hash)
+              const hash = window.location.hash
+              if (hash && hash.includes('type=recovery')) {
+                router.push('/auth/reset-password')
+              } else {
+                // Email verification successful, redirect to dashboard
+                router.push('/dashboard')
+              }
             }
           }
         } else {
