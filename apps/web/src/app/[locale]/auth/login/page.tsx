@@ -1,7 +1,7 @@
 'use client'
 
-import { useState } from 'react'
-import { useRouter } from 'next/navigation'
+import { useState, useEffect } from 'react'
+import { useRouter, useSearchParams } from 'next/navigation'
 import { useTranslations } from 'next-intl'
 import { createClient } from '@/lib/supabase/client'
 import { LoginForm } from '@/components/auth/login-form'
@@ -11,8 +11,17 @@ import Link from 'next/link'
 export default function LoginPage() {
   const t = useTranslations()
   const router = useRouter()
+  const searchParams = useSearchParams()
   const [loading, setLoading] = useState(false)
   const [error, setError] = useState<string | null>(null)
+  const [successMessage, setSuccessMessage] = useState<string | null>(null)
+
+  useEffect(() => {
+    const message = searchParams.get('message')
+    if (message === 'password-updated') {
+      setSuccessMessage('密码已成功更新，请使用新密码登录')
+    }
+  }, [searchParams])
 
   const handleLogin = async (email: string, password: string) => {
     setLoading(true)
@@ -58,6 +67,13 @@ export default function LoginPage() {
             <h1 className="text-3xl font-bold tracking-tight md:text-4xl">AI驱动的宠物护理助手</h1>
             <p className="mt-2 text-gray-600">通过AI引导的待办任务，让宠物护理变得简单</p>
           </div>
+          
+          {successMessage && (
+            <div className="rounded-xl bg-green-50 border border-green-200 p-4">
+              <p className="text-green-800 text-sm font-medium">{successMessage}</p>
+            </div>
+          )}
+          
           <LoginForm
             onSubmit={handleLogin}
             loading={loading}
