@@ -79,8 +79,8 @@ export async function middleware(request: NextRequest) {
   }
 
   // Redirect authenticated users away from auth pages to dashboard or intended destination
-  // Exception: allow reset-password page for password reset flow
-  if (isAuthRoute && user && !pathWithoutLocale.includes('/auth/reset-password')) {
+  // Exception: allow reset-password and forgot-password pages
+  if (isAuthRoute && user && !pathWithoutLocale.includes('/auth/reset-password') && !pathWithoutLocale.includes('/auth/forgot-password')) {
     const redirectTo = request.nextUrl.searchParams.get('redirectTo')
     const redirectUrl = new URL(redirectTo || `/${defaultLocale}/dashboard`, request.url)
     return NextResponse.redirect(redirectUrl)
