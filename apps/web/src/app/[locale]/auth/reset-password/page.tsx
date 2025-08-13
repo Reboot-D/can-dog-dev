@@ -30,6 +30,34 @@ export default function ResetPasswordPage() {
         const urlParams = new URLSearchParams(window.location.search)
         const code = urlParams.get('code')
         
+        // Check for Supabase error parameters first
+        const urlError = urlParams.get('error')
+        const urlErrorCode = urlParams.get('error_code')
+        const urlErrorDescription = urlParams.get('error_description')
+        
+        // Check hash for errors as well
+        const hashParams = new URLSearchParams(hash.replace('#', ''))
+        const hashError = hashParams.get('error')
+        const hashErrorCode = hashParams.get('error_code')
+        const hashErrorDescription = hashParams.get('error_description')
+        
+        // If we have error parameters, show appropriate error message
+        const error = urlError || hashError
+        const errorCode = urlErrorCode || hashErrorCode
+        const errorDescription = urlErrorDescription || hashErrorDescription
+        
+        if (error) {
+          if (errorCode === 'otp_expired') {
+            setError('密码重置链接已过期。密码重置链接只有24小时有效期，请重新申请密码重置。')
+          } else if (error === 'access_denied') {
+            setError('密码重置链接无效。这可能是因为链接已被使用过或已过期，请重新申请密码重置。')
+          } else {
+            setError(errorDescription ? decodeURIComponent(errorDescription.replace(/\+/g, ' ')) : '密码重置失败，请重新申请密码重置。')
+          }
+          setVerifying(false)
+          return
+        }
+        
         // Handle PKCE flow (modern Supabase auth)
         if (code) {
           try {
@@ -159,13 +187,13 @@ export default function ResetPasswordPage() {
             </div>
             <div className="space-y-4">
               <Link 
-                href="/auth/forgot-password" 
+                href="/zh-CN/auth/forgot-password" 
                 className="w-full flex justify-center py-3 px-4 border border-transparent rounded-full shadow-sm text-sm font-medium text-white bg-primary hover:bg-primary/90 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-primary"
               >
                 重新申请密码重置
               </Link>
               <Link
-                href="/auth/login"
+                href="/zh-CN/auth/login"
                 className="w-full flex justify-center py-3 px-4 border border-gray-300 rounded-full shadow-sm text-sm font-medium text-gray-700 bg-white hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-primary"
               >
                 返回登录
@@ -268,7 +296,7 @@ export default function ResetPasswordPage() {
           
           <div className="text-center">
             <Link 
-              href="/auth/login" 
+              href="/zh-CN/auth/login" 
               className="inline-flex items-center gap-2 text-sm text-primary hover:underline"
             >
               <ArrowLeft className="h-4 w-4" />

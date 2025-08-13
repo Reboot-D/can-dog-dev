@@ -57,7 +57,7 @@ export default function AuthCallbackPage() {
             setError(error.message)
           } else {
             // Email verification successful, redirect to dashboard
-            router.push('/dashboard')
+            router.push('/zh-CN/dashboard')
           }
         } 
         // No valid auth data
@@ -105,7 +105,7 @@ export default function AuthCallbackPage() {
           </div>
           <div className="mt-6">
             <a
-              href="/auth/login"
+              href="/zh-CN/auth/login"
               className="w-full flex justify-center py-2 px-4 border border-transparent rounded-md shadow-sm text-sm font-medium text-white bg-primary hover:bg-primary/90 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-primary"
             >
               {t('auth.goToLogin')}
